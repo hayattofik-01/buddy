@@ -151,7 +151,7 @@ const Auth = () => {
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 text-2xl font-bold text-primary mb-2">
             <Globe className="h-8 w-8" />
-            <span>Buddy</span>
+            <span>WanderBuddy</span>
           </div>
           <h1 className="text-3xl font-bold mt-6 mb-2">Welcome</h1>
           <p className="text-muted-foreground">Sign in or create an account to continue</p>

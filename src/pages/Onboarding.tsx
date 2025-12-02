@@ -112,7 +112,7 @@ const Onboarding = () => {
         return;
       }
     }
-    
+
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -162,10 +162,11 @@ const Onboarding = () => {
 
       toast({
         title: "Profile completed!",
-        description: "Welcome to TravelMate",
+        description: "Welcome to WanderBuddy",
       });
 
-      navigate("/meetups");
+      setShouldShowOnboarding(false);
+      navigate("/meetups", { replace: true });
     } catch (error: any) {
       console.error('Profile update error:', error);
       toast({
@@ -188,7 +189,7 @@ const Onboarding = () => {
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 text-2xl font-bold text-primary mb-4">
             <Globe className="h-8 w-8" />
-            <span>TravelMate</span>
+            <span>WanderBuddy</span>
           </div>
           <h1 className="text-3xl font-bold mb-2">Complete Your Profile</h1>
           <p className="text-muted-foreground">Tell us more about yourself</p>
@@ -236,8 +237,8 @@ const Onboarding = () => {
                 </div>
               </div>
               <div className="flex gap-3">
-                <Button 
-                  onClick={handleNext} 
+                <Button
+                  onClick={handleNext}
                   className="flex-1 h-12"
                   disabled={!name || !dateOfBirth}
                 >
@@ -290,7 +291,7 @@ const Onboarding = () => {
                   <h2 className="text-2xl font-bold mb-2">You're all set!</h2>
                   <p className="text-muted-foreground">Review your profile</p>
                 </div>
-                
+
                 <div className="space-y-4 max-w-md mx-auto">
                   <div className="p-4 rounded-lg bg-muted/50">
                     <p className="text-sm text-muted-foreground mb-1">Name</p>
