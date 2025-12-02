@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Globe, MapPin, Plane } from "lucide-react";
+import { MapPin, Plane, Globe } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import heroImage from "@/assets/hero-travel.jpg";
+import Logo from "@/components/Logo";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -54,12 +55,11 @@ const Auth = () => {
           <div className="text-center space-y-6">
             <div className="flex items-center justify-center gap-2 mb-2">
               <div className="p-3 rounded-full bg-primary/20 backdrop-blur-sm border border-primary/30">
-                <Globe className="h-8 w-8 text-primary-foreground" />
+                <Logo className="h-8 w-8 text-primary-foreground" />
               </div>
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-4xl font-bold tracking-tight">Buddy</h1>
               <p className="text-lg text-white/80 font-light">
                 Explore the world, together.
               </p>
