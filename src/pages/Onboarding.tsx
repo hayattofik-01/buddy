@@ -112,7 +112,7 @@ const Onboarding = () => {
         return;
       }
     }
-    
+
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -151,12 +151,13 @@ const Onboarding = () => {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({
+        .upsert({
+          id: user.id,
           name: validation.data.name,
           date_of_birth: validation.data.dateOfBirth,
           interests: validation.data.interests || [],
-        })
-        .eq('id', user.id);
+          updated_at: new Date().toISOString(),
+        });
 
       if (error) throw error;
 
@@ -236,8 +237,8 @@ const Onboarding = () => {
                 </div>
               </div>
               <div className="flex gap-3">
-                <Button 
-                  onClick={handleNext} 
+                <Button
+                  onClick={handleNext}
                   className="flex-1 h-12"
                   disabled={!name || !dateOfBirth}
                 >
@@ -290,7 +291,7 @@ const Onboarding = () => {
                   <h2 className="text-2xl font-bold mb-2">You're all set!</h2>
                   <p className="text-muted-foreground">Review your profile</p>
                 </div>
-                
+
                 <div className="space-y-4 max-w-md mx-auto">
                   <div className="p-4 rounded-lg bg-muted/50">
                     <p className="text-sm text-muted-foreground mb-1">Name</p>
