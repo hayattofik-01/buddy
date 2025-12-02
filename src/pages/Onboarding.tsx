@@ -44,32 +44,50 @@ const Onboarding = () => {
   const progress = ((currentStep + 1) / totalSteps) * 100;
 
   useEffect(() => {
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
-
-    const checkProfile = async () => {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('date_of_birth, name')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      if (profile?.name) {
-        setName(profile.name);
-      } else if (user.user_metadata?.name || user.user_metadata?.full_name) {
-        setName(user.user_metadata?.name || user.user_metadata?.full_name);
+    const initializeOnboarding = async () => {
+      if (!user) {
+        navigate("/auth");
+        return;
       }
 
-      if (profile?.date_of_birth && profile?.name) {
-        setShouldShowOnboarding(false);
-        navigate("/meetups");
+      // Refresh session to ensure user is valid
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+      if (sessionError || !session) {
+        console.error('Session error:', sessionError);
+        toast({
+          title: "Session expired",
+          description: "Please sign in again",
+          variant: "destructive",
+        });
+        navigate("/auth");
+        return;
       }
+
+      const checkProfile = async () => {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('date_of_birth, name')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        if (profile?.name) {
+          setName(profile.name);
+        } else if (user.user_metadata?.name || user.user_metadata?.full_name) {
+          setName(user.user_metadata?.name || user.user_metadata?.full_name);
+        }
+
+        if (profile?.date_of_birth && profile?.name) {
+          setShouldShowOnboarding(false);
+          navigate("/meetups");
+        }
+      };
+
+      checkProfile();
     };
 
-    checkProfile();
-  }, [user, navigate]);
+    initializeOnboarding();
+  }, [user, navigate, toast]);
 
   const toggleInterest = (interest: string) => {
     setSelectedInterests(prev =>
@@ -169,9 +187,17 @@ const Onboarding = () => {
       navigate("/meetups", { replace: true });
     } catch (error: any) {
       console.error('Profile update error:', error);
+
+      let errorMessage = error.message || error.hint || "Please try again";
+
+      // Handle foreign key constraint error specifically
+      if (error.code === '23503') {
+        errorMessage = "Authentication error. Please sign out and sign in again.";
+      }
+
       toast({
         title: "Unable to save profile",
-        description: "Please try again",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
