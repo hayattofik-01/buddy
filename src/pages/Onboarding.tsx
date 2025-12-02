@@ -151,12 +151,12 @@ const Onboarding = () => {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({
+        .upsert({
+          id: user.id,
           name: validation.data.name,
           date_of_birth: validation.data.dateOfBirth,
           interests: validation.data.interests || [],
-        })
-        .eq('id', user.id);
+        });
 
       if (error) throw error;
 
