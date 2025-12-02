@@ -11,7 +11,44 @@ export const sanitizeText = (text: string): string => {
     .trim();
 };
 
+// ============ AUTH SCHEMAS ============
 
+export const signUpSchema = z.object({
+  email: z.string()
+    .trim()
+    .min(1, { message: "Email is required" })
+    .email({ message: "Invalid email address" })
+    .max(255, { message: "Email must be less than 255 characters" }),
+  password: z.string()
+    .min(6, { message: "Password must be at least 6 characters" })
+    .max(72, { message: "Password must be less than 72 characters" }),
+  username: z.string()
+    .trim()
+    .min(3, { message: "Username must be at least 3 characters" })
+    .max(30, { message: "Username must be less than 30 characters" })
+    .regex(/^[a-zA-Z0-9_]+$/, { message: "Username can only contain letters, numbers, and underscores" }),
+  name: z.string()
+    .trim()
+    .min(2, { message: "Name must be at least 2 characters" })
+    .max(100, { message: "Name must be less than 100 characters" }),
+  dateOfBirth: z.string()
+    .min(1, { message: "Date of birth is required" })
+    .refine((date) => {
+      const birthDate = new Date(date);
+      const today = new Date();
+      const age = today.getFullYear() - birthDate.getFullYear();
+      return age >= 13 && age <= 120;
+    }, { message: "You must be at least 13 years old" }),
+});
+
+export const signInSchema = z.object({
+  email: z.string()
+    .trim()
+    .min(1, { message: "Email is required" })
+    .email({ message: "Invalid email address" }),
+  password: z.string()
+    .min(1, { message: "Password is required" }),
+});
 
 // ============ PROFILE SCHEMAS ============
 

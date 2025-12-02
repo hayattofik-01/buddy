@@ -112,7 +112,7 @@ const Onboarding = () => {
         return;
       }
     }
-
+    
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -151,18 +151,18 @@ const Onboarding = () => {
     try {
       const { error } = await supabase
         .from('profiles')
-        .upsert({
-          id: user.id,
+        .update({
           name: validation.data.name,
           date_of_birth: validation.data.dateOfBirth,
           interests: validation.data.interests || [],
-        });
+        })
+        .eq('id', user.id);
 
       if (error) throw error;
 
       toast({
         title: "Profile completed!",
-        description: "Welcome to WanderBuddy",
+        description: "Welcome to TravelMate",
       });
 
       navigate("/meetups");
@@ -188,7 +188,7 @@ const Onboarding = () => {
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 text-2xl font-bold text-primary mb-4">
             <Globe className="h-8 w-8" />
-            <span>WanderBuddy</span>
+            <span>TravelMate</span>
           </div>
           <h1 className="text-3xl font-bold mb-2">Complete Your Profile</h1>
           <p className="text-muted-foreground">Tell us more about yourself</p>
@@ -236,8 +236,8 @@ const Onboarding = () => {
                 </div>
               </div>
               <div className="flex gap-3">
-                <Button
-                  onClick={handleNext}
+                <Button 
+                  onClick={handleNext} 
                   className="flex-1 h-12"
                   disabled={!name || !dateOfBirth}
                 >
@@ -290,7 +290,7 @@ const Onboarding = () => {
                   <h2 className="text-2xl font-bold mb-2">You're all set!</h2>
                   <p className="text-muted-foreground">Review your profile</p>
                 </div>
-
+                
                 <div className="space-y-4 max-w-md mx-auto">
                   <div className="p-4 rounded-lg bg-muted/50">
                     <p className="text-sm text-muted-foreground mb-1">Name</p>

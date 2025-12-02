@@ -5,7 +5,6 @@ import Navbar from "@/components/Navbar";
 import MeetupCard from "@/components/MeetupCard";
 import heroImage from "@/assets/hero-travel.jpg";
 import { useMeetups } from "@/contexts/MeetupsContext";
-import Logo from "@/components/Logo";
 
 const Index = () => {
   const { meetups, loading } = useMeetups();
@@ -168,7 +167,8 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2 text-xl font-bold text-primary">
-              <Logo />
+              <Globe className="h-6 w-6" />
+              <span>Buddy</span>
             </div>
             <div className="flex gap-6 text-sm text-muted-foreground">
               <Link to="/about" className="hover:text-foreground transition-colors">
@@ -186,7 +186,7 @@ const Index = () => {
             </div>
           </div>
           <div className="text-center mt-8 text-sm text-muted-foreground">
-            © 2025 WanderBuddy. Travel the world, never alone.
+            © 2025 TravelMate. Travel the world, never alone.
           </div>
         </div>
       </footer>
