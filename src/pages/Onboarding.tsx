@@ -156,14 +156,13 @@ const Onboarding = () => {
           name: validation.data.name,
           date_of_birth: validation.data.dateOfBirth,
           interests: validation.data.interests || [],
-          updated_at: new Date().toISOString(),
         });
 
       if (error) throw error;
 
       toast({
         title: "Profile completed!",
-        description: "Welcome to TravelMate",
+        description: "Welcome to WanderBuddy",
       });
 
       navigate("/meetups");
@@ -189,7 +188,7 @@ const Onboarding = () => {
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 text-2xl font-bold text-primary mb-4">
             <Globe className="h-8 w-8" />
-            <span>TravelMate</span>
+            <span>WanderBuddy</span>
           </div>
           <h1 className="text-3xl font-bold mb-2">Complete Your Profile</h1>
           <p className="text-muted-foreground">Tell us more about yourself</p>

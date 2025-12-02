@@ -2,7 +2,8 @@
 ALTER TABLE public.profiles 
 ADD COLUMN IF NOT EXISTS name text,
 ADD COLUMN IF NOT EXISTS date_of_birth date,
-ADD COLUMN IF NOT EXISTS interests text[];
+ADD COLUMN IF NOT EXISTS interests text[],
+ADD COLUMN IF NOT EXISTS updated_at timestamp with time zone default timezone('utc'::text, now()) not null;
 
 -- Add comments
 COMMENT ON COLUMN public.profiles.name IS 'User full name or display name';

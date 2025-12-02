@@ -186,7 +186,7 @@ const Index = () => {
             </div>
           </div>
           <div className="text-center mt-8 text-sm text-muted-foreground">
-            © 2025 TravelMate. Travel the world, never alone.
+            © 2025 WanderBuddy. Travel the world, never alone.
           </div>
         </div>
       </footer>
