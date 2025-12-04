@@ -1,16 +1,24 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Plane, MapPin, Globe, Compass } from "lucide-react";
+import { Plane, MapPin, Globe, Compass, ExternalLink, Copy, AlertCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { isInAppBrowser, getInAppBrowserName, copyCurrentUrl } from "@/utils/browserDetection";
 import heroImage from "@/assets/hero-travel.jpg";
 
 const Auth = () => {
   const navigate = useNavigate();
   const { signInWithGoogle, user } = useAuth();
   const { toast } = useToast();
+  const [isInApp, setIsInApp] = useState(false);
+  const [browserName, setBrowserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    setIsInApp(isInAppBrowser());
+    setBrowserName(getInAppBrowserName());
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -26,6 +34,22 @@ const Auth = () => {
       toast({
         title: "Unable to sign in with Google",
         description: "Please try again",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCopyUrl = async () => {
+    const success = await copyCurrentUrl();
+    if (success) {
+      toast({
+        title: "Link copied!",
+        description: "Open the link in Safari or Chrome to sign in",
+      });
+    } else {
+      toast({
+        title: "Failed to copy",
+        description: "Please manually copy the URL from your browser",
         variant: "destructive",
       });
     }
@@ -56,6 +80,46 @@ const Auth = () => {
           </p>
         </div>
 
+        {/* In-App Browser Warning */}
+        {isInApp && (
+          <Card className="border-yellow-500/50 bg-yellow-500/10 backdrop-blur-xl shadow-2xl p-6 mb-4">
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-6 w-6 text-yellow-500 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-yellow-100 mb-2">
+                    {browserName ? `${browserName} Browser Detected` : 'In-App Browser Detected'}
+                  </h3>
+                  <p className="text-yellow-100/90 text-sm mb-3">
+                    Google sign-in doesn't work in in-app browsers due to security restrictions.
+                    Please open this page in Safari or Chrome to continue.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button
+                      onClick={handleCopyUrl}
+                      variant="secondary"
+                      size="sm"
+                      className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold"
+                    >
+                      <Copy className="h-4 w-4 mr-2" />
+                      Copy Link
+                    </Button>
+                    <Button
+                      onClick={() => window.open(window.location.href, '_blank')}
+                      variant="outline"
+                      size="sm"
+                      className="border-yellow-500/50 text-yellow-100 hover:bg-yellow-500/20"
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Open in Browser
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
+
         {/* Auth Card */}
         <Card className="border-white/20 bg-black/30 backdrop-blur-xl shadow-2xl text-white p-8">
           <div className="space-y-6">
@@ -68,8 +132,10 @@ const Auth = () => {
             <Button
               type="button"
               size="lg"
-              className="w-full h-14 bg-white text-gray-900 hover:bg-gray-100 font-semibold text-lg shadow-lg hover:shadow-xl transition-all"
+              className="w-full h-14 bg-white text-gray-900 hover:bg-gray-100 font-semibold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleGoogleSignIn}
+              disabled={isInApp}
+              title={isInApp ? "Please open in Safari or Chrome to sign in" : ""}
             >
               <svg className="mr-3 h-6 w-6" viewBox="0 0 24 24">
                 <path
