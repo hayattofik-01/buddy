@@ -1,13 +1,29 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Globe, Users, MessageCircle, Calendar } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import MeetupCard from "@/components/MeetupCard";
 import heroImage from "@/assets/hero-travel.jpg";
 import { useMeetups } from "@/contexts/MeetupsContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useEffect } from "react";
 
 const Index = () => {
   const { meetups, loading } = useMeetups();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (!user) {
+      navigate("/auth");
+    }
+  }, [user, navigate]);
+
+  // Don't render anything if not authenticated
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background">
