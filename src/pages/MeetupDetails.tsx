@@ -178,9 +178,14 @@ const MeetupDetails = () => {
 
         if (error) throw error;
 
+        // Check if there's a social group link
+        const socialValidation = meetup.social_group_link ? validateSocialGroupLink(meetup.social_group_link) : null;
+
         toast({
           title: 'Joined meetup!',
-          description: 'You are now a member of this meetup',
+          description: socialValidation?.isValid && socialValidation.platform
+            ? `You are now a member. Check the ${getPlatformName(socialValidation.platform)} group link below!`
+            : 'You are now a member of this meetup',
         });
 
         setIsMember(true);

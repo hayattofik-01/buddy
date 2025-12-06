@@ -12,8 +12,9 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, MessageCircle, Send, Users as UsersIcon, Instagram as InstagramIcon } from "lucide-react";
 import CityAutocomplete from "@/components/CityAutocomplete";
+import { validateSocialGroupLink, getPlatformIcon, getPlatformName, getPlatformColor } from "@/lib/socialValidation";
 
 const EditMeetup = () => {
   const navigate = useNavigate();
@@ -32,6 +33,8 @@ const EditMeetup = () => {
   const [maxMembers, setMaxMembers] = useState("10");
   const [meetingPoint, setMeetingPoint] = useState("");
   const [description, setDescription] = useState("");
+  const [socialGroupLink, setSocialGroupLink] = useState("");
+  const [socialLinkError, setSocialLinkError] = useState("");
 
   useEffect(() => {
     const fetchMeetup = async () => {
@@ -67,6 +70,7 @@ const EditMeetup = () => {
         setTripType(data.type);
         setIsPaid(data.is_paid || false);
         setAmount(data.amount ? data.amount.toString() : "");
+        setSocialGroupLink(data.social_group_link || "");
       } catch (error: any) {
         console.error('Error loading meetup:', error);
         toast({
@@ -86,6 +90,18 @@ const EditMeetup = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate social group link if provided
+    const socialValidation = validateSocialGroupLink(socialGroupLink);
+    if (!socialValidation.isValid) {
+      toast({
+        title: "Invalid social group link",
+        description: socialValidation.error,
+        variant: "destructive",
+      });
+      setSocialLinkError(socialValidation.error || "");
+      return;
+    }
+
     const sanitizedData = {
       title: sanitizeText(title),
       destination: sanitizeText(destination),
@@ -97,6 +113,7 @@ const EditMeetup = () => {
       description: description ? sanitizeText(description) : undefined,
       isPaid,
       amount: isPaid && amount ? parseFloat(amount) : undefined,
+      socialGroupLink: socialValidation.url || undefined,
     };
 
     const validation = validateMeetup(sanitizedData);
@@ -229,6 +246,52 @@ const EditMeetup = () => {
                 onChange={(e) => setDescription(e.target.value)}
                 rows={4}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="socialGroupLink">Social Group Link (Optional)</Label>
+              <div className="relative">
+                <Input
+                  id="socialGroupLink"
+                  placeholder="WhatsApp, Telegram, Facebook, or Instagram group link"
+                  value={socialGroupLink}
+                  onChange={(e) => {
+                    setSocialGroupLink(e.target.value);
+                    setSocialLinkError("");
+                  }}
+                  className={socialLinkError ? "border-destructive" : ""}
+                />
+                {socialGroupLink && (() => {
+                  const validation = validateSocialGroupLink(socialGroupLink);
+                  if (validation.isValid && validation.platform) {
+                    const Icon = validation.platform === 'whatsapp' ? MessageCircle :
+                      validation.platform === 'telegram' ? Send :
+                        validation.platform === 'facebook' ? UsersIcon :
+                          validation.platform === 'instagram' ? InstagramIcon :
+                            null;
+                    return Icon ? (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <Icon className={`h-5 w-5 ${getPlatformColor(validation.platform)}`} />
+                      </div>
+                    ) : null;
+                  }
+                  return null;
+                })()}
+              </div>
+              {socialLinkError && (
+                <p className="text-sm text-destructive">{socialLinkError}</p>
+              )}
+              {socialGroupLink && !socialLinkError && (() => {
+                const validation = validateSocialGroupLink(socialGroupLink);
+                return validation.isValid && validation.platform ? (
+                  <p className="text-sm text-muted-foreground">
+                    ✓ {getPlatformName(validation.platform)} group link detected
+                  </p>
+                ) : null;
+              })()}
+              <p className="text-xs text-muted-foreground">
+                Connect your WhatsApp, Telegram, Facebook, or Instagram group for easier communication
+              </p>
             </div>
 
             <div className="space-y-4">
