@@ -51,7 +51,7 @@ const NotificationBell = () => {
           const newNotification = payload.new as Notification;
           setNotifications((prev) => [newNotification, ...prev]);
           setUnreadCount((prev) => prev + 1);
-          
+
           // Show toast for new notification
           toast({
             title: newNotification.title,
@@ -124,7 +124,7 @@ const NotificationBell = () => {
   const handleNotificationClick = (notification: Notification) => {
     markAsRead(notification.id);
     setOpen(false);
-    
+
     if (notification.meetup_id) {
       navigate(`/meetups/${notification.meetup_id}`);
     }
@@ -150,7 +150,7 @@ const NotificationBell = () => {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button variant="ghost" size="icon" className="relative hidden md:flex">
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
@@ -184,9 +184,8 @@ const NotificationBell = () => {
                 <button
                   key={notification.id}
                   onClick={() => handleNotificationClick(notification)}
-                  className={`w-full p-4 text-left hover:bg-muted/50 transition-colors ${
-                    !notification.is_read ? 'bg-primary/5' : ''
-                  }`}
+                  className={`w-full p-4 text-left hover:bg-muted/50 transition-colors ${!notification.is_read ? 'bg-primary/5' : ''
+                    }`}
                 >
                   <div className="flex gap-3">
                     <span className="text-lg">
