@@ -17,6 +17,8 @@ const ProfileMenu = () => {
     const { user, signOut } = useAuth();
     const [open, setOpen] = useState(false);
 
+    if (!user) return null;
+
     return (
         <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>

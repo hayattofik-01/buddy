@@ -58,12 +58,12 @@ const Navbar = () => {
                   <LogOut className="h-4 w-4" />
                   <span className="hidden sm:inline">Sign Out</span>
                 </Button>
+                <ProfileMenu />
                 <Button size="icon" asChild className="md:hidden">
                   <Link to="/create-meetup">
                     <Plus className="h-4 w-4" />
                   </Link>
                 </Button>
-                <ProfileMenu />
               </>
             ) : (
               <Button size="sm" asChild>
