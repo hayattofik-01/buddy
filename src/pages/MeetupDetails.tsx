@@ -49,6 +49,15 @@ const MeetupDetails = () => {
   const [isMember, setIsMember] = useState(false);
   const isCreator = meetup?.creator_id === user?.id;
 
+  // Generate random traveler username
+  const getDisplayName = (username: string | undefined, userId: string): string => {
+    if (username) return username;
+    // Generate consistent random number from user ID
+    const hash = userId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const randomNum = (hash % 9000) + 1000; // 4-digit number between 1000-9999
+    return `traveler_${randomNum}`;
+  };
+
   const fetchMembers = async () => {
     if (!meetupId) return;
 
@@ -339,13 +348,13 @@ const MeetupDetails = () => {
                           <Avatar className="h-12 w-12">
                             <AvatarImage src={member.profiles?.avatar_url} />
                             <AvatarFallback className="bg-primary/10 text-primary">
-                              {member.profiles?.username?.[0]?.toUpperCase() || 'U'}
+                              {getDisplayName(member.profiles?.username, member.user_id)[0]?.toUpperCase() || 'T'}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
                               <p className="font-medium text-sm truncate">
-                                {member.profiles?.username}
+                                {getDisplayName(member.profiles?.username, member.user_id)}
                               </p>
                               {member.role === 'organizer' && (
                                 <Badge variant="default" className="text-xs">
@@ -354,7 +363,7 @@ const MeetupDetails = () => {
                               )}
                             </div>
                             <p className="text-xs text-muted-foreground truncate">
-                              @{member.profiles?.username}
+                              @{getDisplayName(member.profiles?.username, member.user_id)}
                             </p>
                           </div>
                         </div>
