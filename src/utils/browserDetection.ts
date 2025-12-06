@@ -105,3 +105,71 @@ export const copyCurrentUrl = async (): Promise<boolean> => {
         return false;
     }
 };
+
+/**
+ * Attempts to open the current URL in Chrome browser
+ * Works on both iOS and Android
+ */
+export const openInChrome = (): boolean => {
+    try {
+        const currentUrl = window.location.href;
+        const userAgent = navigator.userAgent || '';
+
+        // Detect platform
+        const isIOS = /iPhone|iPad|iPod/.test(userAgent);
+        const isAndroid = /Android/.test(userAgent);
+
+        if (isIOS) {
+            // iOS Chrome deep link
+            // Format: googlechrome://example.com or googlechromes://example.com (for https)
+            const chromeUrl = currentUrl.replace(/^https:\/\//, 'googlechromes://').replace(/^http:\/\//, 'googlechrome://');
+            window.location.href = chromeUrl;
+            return true;
+        } else if (isAndroid) {
+            // Android Chrome intent
+            // This will open Chrome if installed, otherwise prompt to install or choose another browser
+            const intentUrl = `intent://${currentUrl.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
+            window.location.href = intentUrl;
+            return true;
+        } else {
+            // Desktop or unknown platform - try to open in new window
+            window.open(currentUrl, '_blank');
+            return true;
+        }
+    } catch (error) {
+        console.error('Failed to open in Chrome:', error);
+        return false;
+    }
+};
+
+/**
+ * Attempts to open the current URL in the default system browser
+ */
+export const openInDefaultBrowser = (): boolean => {
+    try {
+        const currentUrl = window.location.href;
+        const userAgent = navigator.userAgent || '';
+
+        const isIOS = /iPhone|iPad|iPod/.test(userAgent);
+        const isAndroid = /Android/.test(userAgent);
+
+        if (isIOS) {
+            // Try Safari on iOS
+            const safariUrl = currentUrl.replace(/^https?:\/\//, 'x-safari-https://');
+            window.location.href = safariUrl;
+            return true;
+        } else if (isAndroid) {
+            // Android intent to open in default browser
+            const intentUrl = `intent://${currentUrl.replace(/^https?:\/\//, '')}#Intent;scheme=https;action=android.intent.action.VIEW;end`;
+            window.location.href = intentUrl;
+            return true;
+        } else {
+            // Desktop - try window.open
+            window.open(currentUrl, '_blank');
+            return true;
+        }
+    } catch (error) {
+        console.error('Failed to open in default browser:', error);
+        return false;
+    }
+};

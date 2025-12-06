@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Compass, Plus, User, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import NotificationBell from "./NotificationBell";
+import ProfileMenu from "./ProfileMenu";
 
 const Navbar = () => {
   const { user, signOut } = useAuth();
@@ -19,6 +20,9 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-6">
             <Link to="/meetups" className="text-foreground hover:text-primary transition-colors">
               Join Meetups
+            </Link>
+            <Link to="/my-meetups" className="text-foreground hover:text-primary transition-colors">
+              My Meetups
             </Link>
             <Link to="/community" className="text-foreground hover:text-primary transition-colors">
               Community Chat
@@ -54,19 +58,12 @@ const Navbar = () => {
                   <LogOut className="h-4 w-4" />
                   <span className="hidden sm:inline">Sign Out</span>
                 </Button>
-                <Button variant="ghost" size="icon" asChild className="md:hidden">
-                  <Link to="/profile">
-                    <User className="h-4 w-4" />
-                  </Link>
-                </Button>
                 <Button size="icon" asChild className="md:hidden">
                   <Link to="/create-meetup">
                     <Plus className="h-4 w-4" />
                   </Link>
                 </Button>
-                <Button variant="ghost" size="icon" onClick={signOut} className="md:hidden">
-                  <LogOut className="h-4 w-4" />
-                </Button>
+                <ProfileMenu />
               </>
             ) : (
               <Button size="sm" asChild>

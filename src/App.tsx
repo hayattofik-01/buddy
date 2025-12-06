@@ -18,6 +18,7 @@ import Onboarding from "./pages/Onboarding";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import Community from "./pages/Community";
+import MyMeetups from "./pages/MyMeetups";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/meetups" element={<ProtectedRoute><Meetups /></ProtectedRoute>} />
               <Route path="/meetups/:meetupId" element={<ProtectedRoute><MeetupDetails /></ProtectedRoute>} />
               <Route path="/meetups/:meetupId/edit" element={<ProtectedRoute><EditMeetup /></ProtectedRoute>} />
+              <Route path="/my-meetups" element={<ProtectedRoute><MyMeetups /></ProtectedRoute>} />
               <Route path="/create-meetup" element={<ProtectedRoute><CreateMeetup /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/user/:userId" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />

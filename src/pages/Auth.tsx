@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Plane, MapPin, Globe, Compass, ExternalLink, Copy, AlertCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { isInAppBrowser, getInAppBrowserName, copyCurrentUrl } from "@/utils/browserDetection";
+import { isInAppBrowser, getInAppBrowserName, copyCurrentUrl, openInChrome } from "@/utils/browserDetection";
 import heroImage from "@/assets/hero-travel.jpg";
 
 const Auth = () => {
@@ -16,9 +16,25 @@ const Auth = () => {
   const [browserName, setBrowserName] = useState<string | null>(null);
 
   useEffect(() => {
-    setIsInApp(isInAppBrowser());
-    setBrowserName(getInAppBrowserName());
-  }, []);
+    const inApp = isInAppBrowser();
+    const browserName = getInAppBrowserName();
+    setIsInApp(inApp);
+    setBrowserName(browserName);
+
+    // Automatically attempt to open in Chrome if LinkedIn in-app browser detected
+    if (inApp && browserName === 'LinkedIn') {
+      // Try to open in Chrome automatically
+      openInChrome();
+
+      // Show a toast to inform the user
+      setTimeout(() => {
+        toast({
+          title: "Opening in Chrome...",
+          description: "If Chrome doesn't open automatically, please use the 'Open in Chrome' button below",
+        });
+      }, 500);
+    }
+  }, [toast]);
 
   useEffect(() => {
     if (user) {
@@ -92,14 +108,25 @@ const Auth = () => {
                   </h3>
                   <p className="text-yellow-100/90 text-sm mb-3">
                     Google sign-in doesn't work in in-app browsers due to security restrictions.
-                    Please open this page in Safari or Chrome to continue.
+                    {browserName === 'LinkedIn' ? ' Tap "Open in Chrome" below to continue.' : ' Please open this page in Safari or Chrome to continue.'}
                   </p>
                   <div className="flex flex-col sm:flex-row gap-2">
+                    {browserName === 'LinkedIn' && (
+                      <Button
+                        onClick={openInChrome}
+                        variant="secondary"
+                        size="sm"
+                        className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold"
+                      >
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Open in Chrome
+                      </Button>
+                    )}
                     <Button
                       onClick={handleCopyUrl}
                       variant="secondary"
                       size="sm"
-                      className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold"
+                      className={browserName === 'LinkedIn' ? "bg-white/20 hover:bg-white/30 text-white" : "bg-yellow-500 hover:bg-yellow-600 text-black font-semibold"}
                     >
                       <Copy className="h-4 w-4 mr-2" />
                       Copy Link
@@ -108,7 +135,7 @@ const Auth = () => {
                       onClick={() => window.open(window.location.href, '_blank')}
                       variant="outline"
                       size="sm"
-                      className="border-yellow-500/50 text-yellow-100 hover:bg-yellow-500/20"
+                      className="bg-black hover:bg-black/80 text-white border-black"
                     >
                       <ExternalLink className="h-4 w-4 mr-2" />
                       Open in Browser
