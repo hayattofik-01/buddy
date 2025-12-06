@@ -112,15 +112,6 @@ const MeetupCard = ({
                 ${amount?.toFixed(2) || '0.00'}
               </Badge>
             )}
-            {socialPlatform?.isValid && socialPlatform.platform && (
-              <Badge variant="outline" className="bg-background/80 backdrop-blur-sm">
-                {socialPlatform.platform === 'whatsapp' && <MessageCircle className="h-3 w-3 mr-1" />}
-                {socialPlatform.platform === 'telegram' && <Send className="h-3 w-3 mr-1" />}
-                {socialPlatform.platform === 'facebook' && <Users className="h-3 w-3 mr-1" />}
-                {socialPlatform.platform === 'instagram' && <InstagramIcon className="h-3 w-3 mr-1" />}
-                {getPlatformName(socialPlatform.platform)}
-              </Badge>
-            )}
           </div>
 
           <div className="absolute top-3 left-3">
@@ -152,6 +143,18 @@ const MeetupCard = ({
               {format(new Date(startDate), 'MMM d')} - {format(new Date(endDate), 'MMM d, yyyy')}
             </span>
           </div>
+
+          {socialPlatform?.isValid && socialPlatform.platform && (
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="gap-1">
+                {socialPlatform.platform === 'whatsapp' && <MessageCircle className="h-3 w-3" />}
+                {socialPlatform.platform === 'telegram' && <Send className="h-3 w-3" />}
+                {socialPlatform.platform === 'facebook' && <Users className="h-3 w-3" />}
+                {socialPlatform.platform === 'instagram' && <InstagramIcon className="h-3 w-3" />}
+                <span className="text-xs">{getPlatformName(socialPlatform.platform)} Group</span>
+              </Badge>
+            </div>
+          )}
 
           {meetingPoint && (
             <div className="text-sm text-muted-foreground">
