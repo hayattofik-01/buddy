@@ -14,7 +14,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2 text-xl font-bold text-primary">
             <Compass className="h-6 w-6" />
-            <span>WanderBuddy</span>
+            <span className="hidden md:inline">WanderBuddy</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
