@@ -100,7 +100,7 @@ const EditMeetup = () => {
     };
 
     const validation = validateMeetup(sanitizedData);
-    
+
     if (!validation.success) {
       const firstError = validation.error.issues[0];
       toast({
@@ -147,7 +147,7 @@ const EditMeetup = () => {
 
         <Card className="p-8">
           <h1 className="text-3xl font-bold mb-6">Edit Meetup</h1>
-          
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="title">Meetup Title *</Label>
@@ -179,6 +179,7 @@ const EditMeetup = () => {
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
                   required
                 />
               </div>
@@ -190,6 +191,7 @@ const EditMeetup = () => {
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
+                  min={startDate || new Date().toISOString().split('T')[0]}
                   required
                 />
               </div>

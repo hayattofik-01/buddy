@@ -18,6 +18,7 @@ export interface Meetup {
   isPaid: boolean;
   amount?: number;
   creatorId?: string;
+  socialGroupLink?: string;
 }
 
 interface MeetupsContextType {
@@ -68,6 +69,7 @@ export const MeetupsProvider = ({ children }: { children: ReactNode }) => {
         isPaid: meetup.is_paid || false,
         amount: meetup.amount,
         creatorId: meetup.creator_id,
+        socialGroupLink: meetup.social_group_link,
       }));
 
       // Sort by start date (closest upcoming first)
@@ -91,7 +93,7 @@ export const MeetupsProvider = ({ children }: { children: ReactNode }) => {
   const addMeetup = async (meetupData: Omit<Meetup, 'id' | 'currentMembers' | 'creatorName'>) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         toast({
           title: 'Authentication required',
@@ -115,6 +117,7 @@ export const MeetupsProvider = ({ children }: { children: ReactNode }) => {
           description: meetupData.description,
           is_paid: meetupData.isPaid,
           amount: meetupData.amount,
+          social_group_link: meetupData.socialGroupLink,
           creator_id: user.id,
         })
         .select()
@@ -129,7 +132,7 @@ export const MeetupsProvider = ({ children }: { children: ReactNode }) => {
       });
 
       await fetchMeetups();
-      
+
       toast({
         title: 'Meetup created!',
         description: 'Your meetup has been created successfully.',
@@ -148,7 +151,7 @@ export const MeetupsProvider = ({ children }: { children: ReactNode }) => {
   const updateMeetup = async (id: string, meetupData: Partial<Omit<Meetup, 'id' | 'currentMembers' | 'creatorName'>>) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         toast({
           title: 'Authentication required',
@@ -170,6 +173,7 @@ export const MeetupsProvider = ({ children }: { children: ReactNode }) => {
       if (meetupData.description !== undefined) updatePayload.description = meetupData.description;
       if (meetupData.isPaid !== undefined) updatePayload.is_paid = meetupData.isPaid;
       if (meetupData.amount !== undefined) updatePayload.amount = meetupData.amount;
+      if (meetupData.socialGroupLink !== undefined) updatePayload.social_group_link = meetupData.socialGroupLink;
 
       const { error } = await supabase
         .from('meetups')
@@ -180,7 +184,7 @@ export const MeetupsProvider = ({ children }: { children: ReactNode }) => {
       if (error) throw error;
 
       await fetchMeetups();
-      
+
       toast({
         title: 'Meetup updated!',
         description: 'Your meetup has been updated successfully.',

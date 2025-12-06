@@ -12,7 +12,8 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, ArrowLeft, Calendar, MapPin, Users } from 'lucide-react';
+import { Loader2, ArrowLeft, Calendar, MapPin, Users, MessageCircle, Send, Instagram as InstagramIcon } from 'lucide-react';
+import { validateSocialGroupLink, getPlatformName, getPlatformColor } from '@/lib/socialValidation';
 
 interface Meetup {
   id: string;
@@ -24,6 +25,7 @@ interface Meetup {
   creator_id: string;
   max_members: number;
   type: 'open' | 'locked';
+  social_group_link?: string | null;
 }
 
 interface MeetupMember {
@@ -49,7 +51,7 @@ const MeetupDetails = () => {
 
   const fetchMembers = async () => {
     if (!meetupId) return;
-    
+
     const { data: membersData } = await supabase
       .from('meetup_members')
       .select(`
@@ -140,7 +142,7 @@ const MeetupDetails = () => {
             });
             return;
           }
-          
+
           // Update existing rejected request to pending
           const { error } = await supabase
             .from('meetup_join_requests')
@@ -182,7 +184,7 @@ const MeetupDetails = () => {
         });
 
         setIsMember(true);
-        
+
         fetchMembers();
       }
     } catch (error: any) {
@@ -232,7 +234,7 @@ const MeetupDetails = () => {
               <div className="flex items-start justify-between mb-4">
                 <h1 className="text-2xl font-bold">{meetup.title}</h1>
                 {!isMember && (
-                  <Button 
+                  <Button
                     onClick={handleJoinMeetup}
                     disabled={members.length >= meetup.max_members}
                   >
@@ -240,7 +242,7 @@ const MeetupDetails = () => {
                   </Button>
                 )}
               </div>
-              
+
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
                   <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
@@ -266,13 +268,39 @@ const MeetupDetails = () => {
                     <p className="text-sm text-muted-foreground">{meetup.description}</p>
                   </div>
                 )}
+
+                {meetup.social_group_link && isMember && (() => {
+                  const validation = validateSocialGroupLink(meetup.social_group_link);
+                  if (validation.isValid && validation.platform) {
+                    const Icon = validation.platform === 'whatsapp' ? MessageCircle :
+                      validation.platform === 'telegram' ? Send :
+                        validation.platform === 'facebook' ? Users :
+                          validation.platform === 'instagram' ? InstagramIcon :
+                            null;
+                    return (
+                      <div className="pt-3 border-t">
+                        <Button
+                          asChild
+                          variant="outline"
+                          className="w-full"
+                        >
+                          <a href={validation.url} target="_blank" rel="noopener noreferrer">
+                            {Icon && <Icon className={`h-4 w-4 mr-2 ${getPlatformColor(validation.platform)}`} />}
+                            Join {getPlatformName(validation.platform)} Group
+                          </a>
+                        </Button>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
             </Card>
 
             {/* Pending Requests - Only visible to creator */}
             {isCreator && (
-              <PendingRequests 
-                meetupId={meetupId!} 
+              <PendingRequests
+                meetupId={meetupId!}
                 onRequestHandled={fetchMembers}
               />
             )}
@@ -336,8 +364,8 @@ const MeetupDetails = () => {
           {/* Chat */}
           <div className="lg:col-span-2">
             {isMember ? (
-              <MeetupChat 
-                meetupId={meetupId!} 
+              <MeetupChat
+                meetupId={meetupId!}
                 isCreator={meetup.creator_id === user?.id}
               />
             ) : (
@@ -347,7 +375,7 @@ const MeetupDetails = () => {
                   {meetup.type === 'locked' ? 'Request to join' : 'Join to access chat'}
                 </h3>
                 <p className="text-muted-foreground mb-4">
-                  {meetup.type === 'locked' 
+                  {meetup.type === 'locked'
                     ? 'Request to join this meetup to chat with other members and share locations'
                     : 'Join this meetup to chat with other members and share locations'
                   }
