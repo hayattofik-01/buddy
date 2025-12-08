@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Globe, ChevronRight } from "lucide-react";
+import { Globe, ChevronRight, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
@@ -50,20 +50,6 @@ const Onboarding = () => {
         return;
       }
 
-      // Refresh session to ensure user is valid
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-      if (sessionError || !session) {
-        console.error('Session error:', sessionError);
-        toast({
-          title: "Session expired",
-          description: "Please sign in again",
-          variant: "destructive",
-        });
-        navigate("/auth");
-        return;
-      }
-
       const checkProfile = async () => {
         const { data: profile } = await supabase
           .from('profiles')
@@ -87,7 +73,7 @@ const Onboarding = () => {
     };
 
     initializeOnboarding();
-  }, [user, navigate, toast]);
+  }, [user, navigate]);
 
   const toggleInterest = (interest: string) => {
     setSelectedInterests(prev =>
@@ -212,7 +198,19 @@ const Onboarding = () => {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 overflow-hidden">
       <div className="w-full max-w-2xl space-y-6">
-        <div className="text-center">
+        <div className="text-center relative">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={async () => {
+              await supabase.auth.signOut();
+              navigate("/auth");
+            }}
+            className="absolute right-0 top-0"
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign Out
+          </Button>
           <div className="flex items-center justify-center gap-2 text-2xl font-bold text-primary mb-4">
             <Globe className="h-8 w-8" />
             <span>WanderBuddy</span>
