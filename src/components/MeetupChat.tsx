@@ -25,6 +25,7 @@ interface ChatMessage {
   created_at: string;
   profiles?: {
     username: string;
+    name: string | null;
   };
 }
 
@@ -45,6 +46,7 @@ interface ActivityResponse {
   response: 'going' | 'not_going' | 'maybe';
   profiles?: {
     username: string;
+    name: string | null;
   };
 }
 
@@ -72,7 +74,7 @@ const MeetupChat = ({ meetupId, isCreator = false }: MeetupChatProps) => {
         .from('chat_messages')
         .select(`
           *,
-          profiles:user_id (username)
+          profiles:user_id (username, name)
         `)
         .eq('meetup_id', meetupId)
         .order('created_at', { ascending: true });
@@ -100,7 +102,7 @@ const MeetupChat = ({ meetupId, isCreator = false }: MeetupChatProps) => {
           *,
           activity_responses (
             *,
-            profiles:user_id (username)
+            profiles:user_id (username, name)
           )
         `)
         .eq('meetup_id', meetupId)
@@ -140,7 +142,7 @@ const MeetupChat = ({ meetupId, isCreator = false }: MeetupChatProps) => {
               .from('chat_messages')
               .select(`
                 *,
-                profiles:user_id (username)
+                profiles:user_id (username, name)
               `)
               .eq('id', payload.new.id)
               .maybeSingle()
@@ -155,7 +157,7 @@ const MeetupChat = ({ meetupId, isCreator = false }: MeetupChatProps) => {
               .from('chat_messages')
               .select(`
                 *,
-                profiles:user_id (username)
+                profiles:user_id (username, name)
               `)
               .eq('id', payload.new.id)
               .maybeSingle()
@@ -231,7 +233,7 @@ const MeetupChat = ({ meetupId, isCreator = false }: MeetupChatProps) => {
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${meetupId}/${user.id}/${Date.now()}.${fileExt}`;
-      
+
       const { error: uploadError, data } = await supabase.storage
         .from('meetup-uploads')
         .upload(fileName, file);
@@ -243,7 +245,7 @@ const MeetupChat = ({ meetupId, isCreator = false }: MeetupChatProps) => {
         .getPublicUrl(fileName);
 
       const isImage = file.type.startsWith('image/');
-      
+
       const { error: insertError } = await supabase
         .from('chat_messages')
         .insert({
@@ -298,7 +300,7 @@ const MeetupChat = ({ meetupId, isCreator = false }: MeetupChatProps) => {
       // Detect message type
       const urls = extractUrls(sanitizedContent);
       let messageType: 'text' | 'location' = 'text';
-      
+
       if (urls.length > 0) {
         const isGoogleMaps = urls.some(url => validateGoogleMapsLink(url));
         if (isGoogleMaps) {
@@ -341,7 +343,7 @@ const MeetupChat = ({ meetupId, isCreator = false }: MeetupChatProps) => {
 
   const renderMessage = (message: ChatMessage) => {
     const isCurrentUser = message.user_id === user?.id;
-    
+
     return (
       <div
         key={message.id}
@@ -350,50 +352,49 @@ const MeetupChat = ({ meetupId, isCreator = false }: MeetupChatProps) => {
         <div className={`max-w-[70%] ${isCurrentUser ? 'items-end' : 'items-start'} space-y-1`}>
           {!isCurrentUser && (
             <span className="text-xs text-muted-foreground px-3">
-              {message.profiles?.username || 'Unknown'}
+              {message.profiles?.name || message.profiles?.username || 'Unknown'}
             </span>
           )}
-          
+
           <div className="relative group">
             <Card
-              className={`p-3 ${
-                isCurrentUser
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted'
-              }`}
+              className={`p-3 ${isCurrentUser
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted'
+                }`}
             >
-            {message.message_type === 'image' && message.file_url && (
-              <img
-                src={message.file_url}
-                alt={message.content}
-                className="rounded-lg max-w-full mb-2"
-              />
-            )}
-            
-            {message.message_type === 'file' && message.file_url && (
-              <a
-                href={message.file_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 hover:underline"
-              >
-                <FileIcon className="h-4 w-4" />
-                <span>{message.file_name || message.content}</span>
-              </a>
-            )}
-            
-            {message.message_type === 'location' && (
-              <a
-                href={message.content}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 hover:underline"
-              >
-                <MapPin className="h-4 w-4" />
-                <span>View location</span>
-              </a>
-            )}
-            
+              {message.message_type === 'image' && message.file_url && (
+                <img
+                  src={message.file_url}
+                  alt={message.content}
+                  className="rounded-lg max-w-full mb-2"
+                />
+              )}
+
+              {message.message_type === 'file' && message.file_url && (
+                <a
+                  href={message.file_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 hover:underline"
+                >
+                  <FileIcon className="h-4 w-4" />
+                  <span>{message.file_name || message.content}</span>
+                </a>
+              )}
+
+              {message.message_type === 'location' && (
+                <a
+                  href={message.content}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 hover:underline"
+                >
+                  <MapPin className="h-4 w-4" />
+                  <span>View location</span>
+                </a>
+              )}
+
               {message.message_type === 'text' && (
                 <p className="break-words whitespace-pre-wrap">{message.content}</p>
               )}
@@ -437,8 +438,8 @@ const MeetupChat = ({ meetupId, isCreator = false }: MeetupChatProps) => {
                   <div className="overflow-x-auto scrollbar-hide py-6">
                     <div className="flex gap-8 min-w-max px-4">
                       {activities.map((activity, index) => (
-                        <div 
-                          key={activity.id} 
+                        <div
+                          key={activity.id}
                           className="animate-fade-in relative"
                           style={{
                             animationDelay: `${index * 0.1}s`
@@ -487,7 +488,7 @@ const MeetupChat = ({ meetupId, isCreator = false }: MeetupChatProps) => {
               if (file) handleFileUpload(file);
             }}
           />
-          
+
           <Button
             type="button"
             variant="outline"

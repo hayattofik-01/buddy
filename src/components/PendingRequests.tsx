@@ -15,6 +15,7 @@ interface JoinRequest {
   created_at: string;
   profiles: {
     username: string;
+    name: string | null;
     avatar_url?: string;
   };
 }
@@ -62,7 +63,7 @@ const PendingRequests = ({ meetupId, onRequestHandled }: PendingRequestsProps) =
         .from('meetup_join_requests')
         .select(`
           *,
-          profiles:user_id (username, avatar_url)
+          profiles:user_id (username, name, avatar_url)
         `)
         .eq('meetup_id', meetupId)
         .eq('status', 'pending')
@@ -149,18 +150,18 @@ const PendingRequests = ({ meetupId, onRequestHandled }: PendingRequestsProps) =
               key={request.id}
               className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
             >
-              <div 
+              <div
                 className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer hover:opacity-80 transition-opacity"
                 onClick={() => navigate(`/user/${request.user_id}`)}
               >
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={request.profiles?.avatar_url} />
                   <AvatarFallback className="bg-primary/10 text-primary">
-                    {request.profiles?.username?.[0]?.toUpperCase() || 'U'}
+                    {request.profiles?.name?.[0]?.toUpperCase() || request.profiles?.username?.[0]?.toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm truncate">{request.profiles?.username}</p>
+                  <p className="font-medium text-sm truncate">{request.profiles?.name || request.profiles?.username}</p>
                   <p className="text-xs text-muted-foreground">
                     {new Date(request.created_at).toLocaleDateString()}
                   </p>

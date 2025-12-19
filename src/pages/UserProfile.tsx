@@ -11,6 +11,7 @@ import { Loader2, ArrowLeft, Calendar, MapPin } from 'lucide-react';
 
 interface Profile {
   id: string;
+  name: string | null;
   username: string;
   avatar_url?: string;
   bio?: string;
@@ -66,12 +67,12 @@ const UserProfile = () => {
           .eq('user_id', userId);
 
         if (meetupsError) throw meetupsError;
-        
+
         const userMeetups = meetupsData
           ?.map(item => item.meetups as any)
           .filter(Boolean)
           .flat() as UserMeetup[];
-        
+
         setMeetups(userMeetups || []);
       } catch (error: any) {
         console.error('Error fetching profile:', error);
@@ -132,13 +133,14 @@ const UserProfile = () => {
               <Avatar className="h-32 w-32">
                 <AvatarImage src={profile.avatar_url} />
                 <AvatarFallback className="bg-primary/10 text-primary text-4xl">
-                  {profile.username?.[0]?.toUpperCase() || 'U'}
+                  {profile.name?.[0]?.toUpperCase() || profile.username?.[0]?.toUpperCase() || 'U'}
                 </AvatarFallback>
               </Avatar>
-              
+
               <div className="flex-1 text-center md:text-left space-y-4">
                 <div>
-                  <h1 className="text-3xl font-bold mb-2">{profile.username}</h1>
+                  <h1 className="text-3xl font-bold mb-1">{profile.name || profile.username}</h1>
+                  <p className="text-muted-foreground mb-2">@{profile.username}</p>
                   <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-muted-foreground">
                     {profile.date_of_birth && (
                       <span className="text-sm">
@@ -148,7 +150,7 @@ const UserProfile = () => {
                     {profile.instagram && (
                       <>
                         {profile.date_of_birth && <span>•</span>}
-                        <a 
+                        <a
                           href={`https://instagram.com/${profile.instagram.replace('@', '')}`}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -162,21 +164,21 @@ const UserProfile = () => {
                   <div className="flex items-center justify-center md:justify-start gap-2 text-muted-foreground mt-2">
                     <Calendar className="h-4 w-4" />
                     <span className="text-sm">
-                      Joined {new Date(profile.created_at).toLocaleDateString('en-US', { 
-                        month: 'long', 
-                        year: 'numeric' 
+                      Joined {new Date(profile.created_at).toLocaleDateString('en-US', {
+                        month: 'long',
+                        year: 'numeric'
                       })}
                     </span>
                   </div>
                 </div>
-                
+
                 {profile.bio && (
                   <div>
                     <h3 className="text-sm font-semibold mb-1">Bio</h3>
                     <p className="text-muted-foreground">{profile.bio}</p>
                   </div>
                 )}
-                
+
                 {profile.interests && profile.interests.length > 0 && (
                   <div>
                     <h3 className="text-sm font-semibold mb-2">Interests</h3>
@@ -196,7 +198,7 @@ const UserProfile = () => {
           {/* User's Meetups */}
           <Card className="p-6">
             <h2 className="text-xl font-bold mb-4">Meetups ({meetups.length})</h2>
-            
+
             {meetups.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">
                 No meetups yet

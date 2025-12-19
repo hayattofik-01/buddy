@@ -34,6 +34,7 @@ interface MeetupMember {
   role: string;
   profiles: {
     username: string;
+    name: string | null;
     avatar_url?: string;
   };
 }
@@ -50,7 +51,8 @@ const MeetupDetails = () => {
   const isCreator = meetup?.creator_id === user?.id;
 
   // Generate random traveler username
-  const getDisplayName = (username: string | undefined, userId: string): string => {
+  const getDisplayName = (username: string | undefined, name: string | null | undefined, userId: string): string => {
+    if (name) return name;
     if (username) return username;
     // Generate consistent random number from user ID
     const hash = userId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -65,7 +67,7 @@ const MeetupDetails = () => {
       .from('meetup_members')
       .select(`
         *,
-        profiles:user_id (username, avatar_url)
+        profiles:user_id (username, name, avatar_url)
       `)
       .eq('meetup_id', meetupId);
 
@@ -94,7 +96,7 @@ const MeetupDetails = () => {
           .from('meetup_members')
           .select(`
             *,
-            profiles:user_id (username, avatar_url)
+            profiles:user_id (username, name, avatar_url)
           `)
           .eq('meetup_id', meetupId);
 
@@ -348,13 +350,13 @@ const MeetupDetails = () => {
                           <Avatar className="h-12 w-12">
                             <AvatarImage src={member.profiles?.avatar_url} />
                             <AvatarFallback className="bg-primary/10 text-primary">
-                              {getDisplayName(member.profiles?.username, member.user_id)[0]?.toUpperCase() || 'T'}
+                              {getDisplayName(member.profiles?.username, member.profiles?.name, member.user_id)[0]?.toUpperCase() || 'T'}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
                               <p className="font-medium text-sm truncate">
-                                {getDisplayName(member.profiles?.username, member.user_id)}
+                                {getDisplayName(member.profiles?.username, member.profiles?.name, member.user_id)}
                               </p>
                               {member.role === 'organizer' && (
                                 <Badge variant="default" className="text-xs">
@@ -363,7 +365,7 @@ const MeetupDetails = () => {
                               )}
                             </div>
                             <p className="text-xs text-muted-foreground truncate">
-                              @{getDisplayName(member.profiles?.username, member.user_id)}
+                              @{member.profiles?.username || getDisplayName(member.profiles?.username, member.profiles?.name, member.user_id)}
                             </p>
                           </div>
                         </div>

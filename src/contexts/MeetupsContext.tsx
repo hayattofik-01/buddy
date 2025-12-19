@@ -45,7 +45,7 @@ export const MeetupsProvider = ({ children }: { children: ReactNode }) => {
         .from('meetups')
         .select(`
           *,
-          creator:profiles!creator_id(username),
+          creator:profiles!creator_id(username, name),
           meetup_members(count)
         `)
         .gte('end_date', new Date().toISOString().split('T')[0])
@@ -64,7 +64,7 @@ export const MeetupsProvider = ({ children }: { children: ReactNode }) => {
         currentMembers: meetup.meetup_members[0]?.count || 0,
         maxMembers: meetup.max_members,
         imageUrl: meetup.image_url,
-        creatorName: meetup.creator?.username || 'Unknown',
+        creatorName: meetup.creator?.name || meetup.creator?.username || 'Unknown',
         description: meetup.description,
         isPaid: meetup.is_paid || false,
         amount: meetup.amount,

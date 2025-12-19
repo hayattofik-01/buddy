@@ -20,6 +20,7 @@ interface CommunityMessage {
   created_at: string;
   profiles?: {
     username: string;
+    name: string | null;
   };
 }
 
@@ -41,7 +42,7 @@ const CommunityChat = () => {
         .from('community_messages')
         .select(`
           *,
-          profiles:user_id (username)
+          profiles:user_id (username, name)
         `)
         .order('created_at', { ascending: true })
         .limit(100);
@@ -80,7 +81,7 @@ const CommunityChat = () => {
               .from('community_messages')
               .select(`
                 *,
-                profiles:user_id (username)
+                profiles:user_id (username, name)
               `)
               .eq('id', payload.new.id)
               .maybeSingle()
@@ -127,7 +128,7 @@ const CommunityChat = () => {
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `community/${user.id}/${Date.now()}.${fileExt}`;
-      
+
       const { error: uploadError } = await supabase.storage
         .from('meetup-uploads')
         .upload(fileName, file);
@@ -139,7 +140,7 @@ const CommunityChat = () => {
         .getPublicUrl(fileName);
 
       const isImage = file.type.startsWith('image/');
-      
+
       const { error: insertError } = await supabase
         .from('community_messages')
         .insert({
@@ -215,7 +216,7 @@ const CommunityChat = () => {
 
   const renderMessage = (message: CommunityMessage) => {
     const isCurrentUser = message.user_id === user?.id;
-    
+
     return (
       <div
         key={message.id}
@@ -224,17 +225,16 @@ const CommunityChat = () => {
         <div className={`max-w-[70%] ${isCurrentUser ? 'items-end' : 'items-start'} space-y-1`}>
           {!isCurrentUser && (
             <span className="text-xs text-muted-foreground px-3">
-              {message.profiles?.username || 'Unknown'}
+              {message.profiles?.name || message.profiles?.username || 'Unknown'}
             </span>
           )}
-          
+
           <div className="relative group">
             <Card
-              className={`p-3 ${
-                isCurrentUser
+              className={`p-3 ${isCurrentUser
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted'
-              }`}
+                }`}
             >
               {message.message_type === 'image' && message.file_url && (
                 <img
@@ -243,7 +243,7 @@ const CommunityChat = () => {
                   className="rounded-lg max-w-full mb-2"
                 />
               )}
-              
+
               {message.message_type === 'file' && message.file_url && (
                 <a
                   href={message.file_url}
@@ -255,7 +255,7 @@ const CommunityChat = () => {
                   <span>{message.file_name || message.content}</span>
                 </a>
               )}
-              
+
               {message.message_type === 'location' && (
                 <a
                   href={message.content}
@@ -267,12 +267,12 @@ const CommunityChat = () => {
                   <span>View location</span>
                 </a>
               )}
-              
+
               {message.message_type === 'text' && (
                 <p className="break-words whitespace-pre-wrap">{message.content}</p>
               )}
             </Card>
-            
+
             <span className={`text-xs text-muted-foreground px-3 ${isCurrentUser ? 'text-right' : 'text-left'} block mt-1`}>
               {new Date(message.created_at).toLocaleTimeString([], {
                 hour: '2-digit',
@@ -340,7 +340,7 @@ const CommunityChat = () => {
               if (file) handleFileUpload(file);
             }}
           />
-          
+
           <Button
             type="button"
             variant="outline"
